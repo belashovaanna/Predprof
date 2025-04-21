@@ -1,0 +1,40 @@
+C++
+
+
+#include <LiquidCrystal.h>
+#include <Wire.h>
+#include <iarduino_APDS9930.h>
+
+LiquidCrystal lcd(7, 6, 5, 4, 3, 2);
+iarduino_APDS9930 sensor;
+unsigned int FPS = 5, light = 0, min_val = 0, limit = 20;
+double t = 0;
+
+void setup() {
+  sensor.begin();
+  lcd.begin(16, 2);
+  Serial.begin(9600);
+}
+
+void loop() {
+  
+  light = sensor.getLight();
+  Serial.println(light);
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print("E = ");
+  lcd.print(light);
+  lcd.print(" lx");
+  t += 1.0/FPS;
+  if (min_val > light || t > limit){
+    min_val = light;
+    t = 0;
+  }
+  lcd.setCursor(0,1);
+  lcd.print("min_E = ");
+  lcd.print(min_val);
+  lcd.print(" lx");
+  lcd.setCursor(14, 0);
+  lcd.print(int(limit - t));
+  delay(1000/FPS);
+}
